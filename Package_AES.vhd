@@ -40,22 +40,22 @@ function add (a, b : polynom) return polynom is
 	return add_result;
 end function add ;
 
--- Fonction multiplication par X : (Permet aussi de réaliser un décalage/reduction)
+-- Fonction multiplication par X : (Permet aussi de rÃ©aliser un dÃ©calage/reduction)
 function mult_X (a : polynom) return polynom is
-	variable mult_X_result : polynom;							-- Initialisation du polynome retour
+	variable mult_X_result : polynom;								-- Initialisation du polynome retour
 	begin
 	mult_X_result := (others => '0');
-	if a(C_N-1) = '1' then											-- SI le MSB du polynome vaut 1 c-a-d est-ce qu'un debordement peut avoir lieu lors du decalage a gauche ?
-		mult_X_result := a(C_N-2 downto 0)&'0' XOR C_m(7 downto 0);	-- Decalage a gauche et Reduction du champs de Galois avec le poly irreductible (evite un depassement de N)
-	else 															-- SI le MSB du polynome different de 1 ALORS
-		mult_X_result := a(C_N-2 downto 0)&'0';						-- Décalage a gauche seulement car pas de overflow possible
+	if a(C_N-1) = '1' then										-- SI le MSB du polynome vaut 1 c-a-d est-ce qu'un debordement peut avoir lieu lors du decalage a gauche ?
+		mult_X_result := a(C_N-2 downto 0)&'0' XOR C_m(7 downto 0);				-- Decalage a gauche et Reduction du champs de Galois avec le poly irreductible (evite un depassement de N)
+	else 												-- SI le MSB du polynome different de 1 ALORS
+		mult_X_result := a(C_N-2 downto 0)&'0';							-- DÃ©calage a gauche seulement car pas de overflow possible
 	end if;
 	return mult_X_result;
 end function mult_X ;
 
--- Fonction multiplication de deux éléments quelconques du corps
+-- Fonction multiplication de deux Ã©lÃ©ments quelconques du corps
 function mult_2_elem (a, b : polynom) return polynom is
-	variable mult_2_result : polynom;							-- Initialisation du polynome retour 
+	variable mult_2_result : polynom;								-- Initialisation du polynome retour 
 	variable temp_b : polynom;									-- Initialisation du polynome retour  
 	begin
 	mult_2_result := (others => '0');
@@ -74,7 +74,7 @@ end function mult_2_elem;
 
 -- Fonction inverse
 function invers (a : polynom) return polynom is
-	variable inv_result : polynom;								-- Initialisation du polynome retour 
+	variable inv_result : polynom;									-- Initialisation du polynome retour 
 	begin
 	inv_result := a;
 	for i in 0 to 252 loop -- (2**(C_N) - 2) loop							-- Multiplication bit a bit du poly a par le poly b 
@@ -84,33 +84,3 @@ function invers (a : polynom) return polynom is
 end function invers;
 
 end my_package;
-
-
-
--- Fonction multiplication par X : (Permet aussi de réaliser un décalage/reduction)
--- function mult_X (a : polynom; X: integer) return polynom is
-	-- variable mult_X_result : polynom := a;		-- Initialisation du polynome retour
-	-- begin
-	-- for i in X-1 downto 0 loop
-		-- if mult_X_result(C_N-1) = '1' then										-- SI le MSB du polynome vaut 1 c-a-d est-ce qu'un debordement peut avoir lieu lors du decalage a gauche ?
-			-- mult_X_result := mult_X_result(C_N-2 downto 0)&'0';					-- Decalage a gauche 
-			-- mult_X_result := mult_X_result XOR C_m(7 downto 0);		-- Reduction du champs de Galois avec le poly irreductible (evite un depassement de N)
-		-- else 														-- SI le MSB du polynome different de 1 ALORS
-			-- mult_X_result := mult_X_result(C_N-2 downto 0)&'0';					-- Décalage a gauche seulement car pas de overflow possible
-		-- end if;
-	-- end loop;
-	-- return mult_X_result;
--- end function mult_X ;
-
-
--- Fonction multiplication de deux éléments quelconques du corps
--- function mult_2_elem (a, b : polynom) return polynom is
-	-- variable mult_2_result : polynom := (others => '0');
-	-- begin
-	-- for i in (C_N-1) downto 0 loop
-		-- if(b(i)='1') then   -- On realise l'algorithme de decalage si le coefficient de la puissance vaut 1
-		-- mult_2_result:= mult_X(a,i) XOR mult_2_result;
-		-- end if;	
-	-- end loop;
-	-- return mult_2_result;
--- end function mult_2_elem;
