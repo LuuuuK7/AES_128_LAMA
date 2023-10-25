@@ -11,7 +11,7 @@ vcom -reportprogress 300 -work work ../AES_128/Sources/Package_AES.vhd
 
 vcom -reportprogress 300 -work work ../AES_128/Testbench/Package_AES_tb.vhd 
 
-# vsim -gui work.package_aes_tb
+vsim -gui work.package_aes_tb
 
 add wave -divider Somme
 add wave -position insertpoint \
