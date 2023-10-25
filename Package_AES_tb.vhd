@@ -17,112 +17,173 @@ end Package_AES_tb;
 
 architecture arch of Package_AES_tb is
 
-    	signal a_add, b_add, sum_result : polynom;
-	signal a_mult_X, mult_X_result : polynom;
-	signal X_mult_X : integer;
-    	signal a_mult, b_mult, mult_result : polynom;
-    	signal a, a_inv, inv_ok : polynom;
+    signal a_add, b_add, sum_result : polynom;
+    signal a_mult_X, mult_X_result : polynom;
+    signal a_mult, b_mult, mult_result : polynom;
+    signal a, a_inv, inv_ok : polynom;
+	
+	signal ok : std_logic := '1';
 
 begin
     process
     begin
 
-        -- 1.1 Fonction add
-        a_add <= x"57";
-        b_add <= x"83";
-	wait for 10ns;
-        sum_result <= add(a_add, b_add);
-        assert (sum_result = "10011001") report "Erreur: addition 1 incorrecte" severity ERROR;
-        wait for 10 ns;
-		
-	-- 1.2 Fonction add
+        -- 1.1 Fonction add : Test 1 "simple XOR"
         a_add <= "11001100";
         b_add <= "01010101";
-	wait for 10ns;
+		wait for 10ns;
         sum_result <= add(a_add, b_add);
-        assert (sum_result = "10011001") report "Erreur: addition 2 incorrecte" severity ERROR;
-        wait for 10 ns;
+		wait for 10ns; 
+		if (sum_result /= "10011001") then
+			ok <= '0';
+			report "Addition 1 incorrecte" severity ERROR;
+		else
+			report "Addition 1 correcte" severity NOTE;
+		end if;
 		
-	-- 1.3 Fonction add
-        a_add <= "11111111";
-        b_add <= "00000000";
-	wait for 10ns;
+		-- 1.2 Fonction add : Test 2 "simple XOR"
+		a_add <= "01010111";
+        b_add <= "10000011";
+		wait for 10ns;
         sum_result <= add(a_add, b_add);
-        assert (sum_result = "11111111") report "Erreur: addition 3 incorrecte" severity ERROR;
-        wait for 20 ns;
-
-        -- 2.1 Fonction mult_X 
+		wait for 10ns;
+        if (sum_result /= "11010100") then
+			ok <= '0';
+			report "Addition 2 incorrecte" severity ERROR;
+		else
+			report "Addition 2 correcte" severity NOTE;
+		end if;
+		
+        -- 2.1 Fonction mult_X 	--> Depuis le standard page 9 eq n°4.6 ligne 2
+								--> XTimes de x"57" vaut x"Anne Exertier"
         a_mult_X <= x"57";
-	wait for 10ns;
+		wait for 10ns;
         mult_X_result <= mult_X(a_mult_X);
-        assert (mult_X_result = "00110110") report "Erreur: mult_X 1 incorrecte" severity ERROR;
-        wait for 10 ns;
-		
-        -- 2.2 Fonction mult_X 
+		wait for 10ns;
+        if (mult_X_result /= x"AE") then
+			ok <= '0';
+			report "Mult_X 1 incorrecte" severity ERROR;
+		else 
+			report "Mult_X 1 correcte" severity NOTE;
+		end if;
+
+        -- 2.2 Fonction mult_X 	--> Depuis le standard page 9 eq n°4.6 ligne 3
+								--> XTimes de x"Anne Exertier" vaut x"47"
         a_mult_X <= x"ae";
-	wait for 10ns;
+		wait for 10ns;
         mult_X_result <= mult_X(a_mult_X);
-        assert (mult_X_result = "00110110") report "Erreur: mult_X 1 incorrecte" severity ERROR;
-        wait for 10 ns;
-		
-	-- 2.3 Fonction mult_X 
+		wait for 10 ns;
+		if (mult_X_result /= x"47") then
+			ok <= '0';
+			report "Mult_X 2 incorrecte" severity ERROR;
+		else
+			report "Mult_X 2 correcte" severity NOTE;
+		end if;
+
+		-- 2.3 Fonction mult_X 	--> Depuis le standard page 9 eq n°4.6 ligne 4
+								--> XTimes de x"47" vaut x"8E"
         a_mult_X <= x"47";
-	wait for 10ns;
+		wait for 10ns;
         mult_X_result <= mult_X(a_mult_X);
-        assert (mult_X_result = "00110110") report "Erreur: mult_X 1 incorrecte" severity ERROR;
-        wait for 10 ns;
+		wait for 10ns;
+        if (mult_X_result /= x"8E") then
+			ok <= '0';
+			report "Mult_X 3 incorrecte" severity ERROR;
+		else
+			report "Mult_X 3 correcte" severity NOTE;
+		end if;
 		
-        -- 3.1 Fonction mult_2_elem
+        -- 3.1 Fonction mult_2_elem	--> Depuis le standard page 9 eq n°4.6 ligne 1
+									--> x"57"*x"01" vaut x"57"
         b_mult <= x"57";
         a_mult <= x"01";
 		wait for 10ns;
         mult_result <= mult_2_elem(a_mult, b_mult);
-        assert (mult_result = x"57") report "Erreur: multiplication 1 incorrecte" severity ERROR;
-        wait for 10 ns;
+		wait for 10ns;
+        if (mult_result /= x"57") then
+			report "Multiplication 1 incorrecte" severity ERROR;
+			ok <= '0';
+		else 
+			report "Multiplication 1 correcte" severity NOTE;
+		end if;
 		
-	-- 3.2 Fonction mult_2_elem
+		-- 3.2 Fonction mult_2_elem	--> Depuis le standard page 9 eq n°4.6 ligne 2
+									--> x"57"*x"02" vaut xTimes de x"57" qui vaut x"Anne Exertier"
         b_mult <= x"57";
         a_mult <= x"02";
-	wait for 10ns;
+		wait for 10ns;
         mult_result <= mult_2_elem(a_mult, b_mult);
-        assert (mult_result = x"ae") report "Erreur: multiplication 2 incorrecte" severity ERROR;
-        wait for 10 ns;
-		
-	-- 3.3 Fonction mult_2_elem
+		wait for 10ns;
+        if (mult_result /= x"ae") then 
+			report "Multiplication 2 incorrecte" severity ERROR;
+			ok <= '0';
+		else
+			report "Multiplication 2 correcte" severity NOTE;
+		end if;
+
+		-- 3.3 Fonction mult_2_elem	--> Depuis le standard page 9 eq n°4.6 ligne 3
+									--> x"57"*x"04" vaut xTimes de x"Anne Exertier" qui vaut x"47"
         b_mult <= x"57";
         a_mult <= x"04";
-	wait for 10ns;
+		wait for 10ns;
         mult_result <= mult_2_elem(a_mult, b_mult);
-        assert (mult_result = x"47") report "Erreur: multiplication 3 incorrecte" severity ERROR;
-        wait for 10 ns;
+		wait for 10ns;
+        if (mult_result /= x"47") then 
+			report "Multiplication 3 incorrecte" severity ERROR;
+			ok <= '0';
+		else
+			report "Multiplication 3 correcte" severity NOTE;
+		end if;
 		
-	-- 4.1 Fonction inverse
+		-- 4.1 Fonction inverse	--> Afin de vérifier si l'inverse est bon, on multiplie le polynôme par son inverse et on vérifie si le produit vaut 1.
         a <= x"11";
-	wait for 10ns;
+		wait for 10ns;
         a_inv <= invers(a);
-	wait for 10ns;
-        inv_ok <= mult_2_elem(a, a_inv);
-        assert (inv_ok = x"01") report "Inverse 1 incorrecte";
-        wait for 10 ns;
+		wait for 10ns;
+        inv_ok <= mult_2_elem(a, a_inv);	-- Vérification de l'inverse
+		wait for 10ns;
+        if (inv_ok /= x"01") then 
+			report "Inverse 1 incorrecte" severity ERROR;
+			ok <= '0';
+		else
+			report "Inverse 1 correcte" severity NOTE;
+		end if;
 		
-	-- 4.2 Fonction inverse
+		-- 4.2 Fonction inverse
         a <= x"22";
-	wait for 10ns;
+		wait for 10ns;
         a_inv <= invers(a);
-	wait for 10ns;
+		wait for 10ns;
         inv_ok <= mult_2_elem(a, a_inv);
-        assert (inv_ok = x"01") report "Inverse 1 incorrecte";
-        wait for 10 ns;
+		wait for 10ns;
+        if (inv_ok /= x"01") then 
+			report "Inverse 2 incorrecte" severity ERROR;
+			ok <= '0';
+		else
+			report "Inverse 2 correcte" severity NOTE;
+		end if;
 		
-	-- 4.3 Fonction inverse
+		-- 4.3 Fonction inverse
         a <= x"33";
 		wait for 10ns;
         a_inv <= invers(a);
 		wait for 10ns;
-        inv_ok <= mult_2_elem(a, a_inv);
-        assert (inv_ok = x"01") report "Inverse 1 incorrecte";
-        wait for 10 ns;
+		inv_ok <= mult_2_elem(a, a_inv);
+		wait for 10ns;
+        if (inv_ok /= x"01") then 
+			report "Inverse 3 incorrecte" severity ERROR;
+			ok <= '0';
+		else
+			report "Inverse 3 correcte" severity NOTE;
+		end if;
 
+		-- Tout est ok ?
+		if (ok = '1') then
+			report "Tout est bon !" severity NOTE;
+		else 
+			report "Au moins 1 erreur !" severity ERROR;
+		end if;
+		
         -- Arret simulation
         assert false report "Fin de la simulation!" severity NOTE;
         wait;
