@@ -13,7 +13,7 @@ use ieee.std_logic_1164.all;
 package my_package is
 
 	-- Polynome m(x) : 
-	constant C_m: std_logic_vector (8 downto 0) := "100011011";
+	constant C_m: std_logic_vector (8 downto 0) := "100011011"; -- "100011011";
 	-- Type polynom de la taille N-1 : 
 	subtype polynom is std_logic_vector ((C_m'length-2) downto 0);
 	-- Taille du polynome pour le standard utilise => N=8 dans le cas de l'AES 128 : 
@@ -30,36 +30,31 @@ end my_package;
 package body my_package is
 
 -- Fonction addition :
-function add (a, b : polynom) return polynom is
-	variable add_result : polynom;
+function add (a, b : polynom) return polynom is	
 	begin
-	add_result := (others => '0');
-	for i in (C_N-1) downto 0 loop									-- Parcours l'ensemble des coefficients
-		add_result(i) := a(i) XOR b(i);								-- Operation XOR bit a bit
-	end loop;
-	return add_result;
+	return (a XOR b);
 end function add ;
 
--- Fonction multiplication par X : (Permet aussi de réaliser un décalage/reduction)
+-- Fonction multiplication par X : (Permet aussi de rÈaliser un dÈcalage/reduction)
 function mult_X (a : polynom) return polynom is
 	variable mult_X_result : polynom;								-- Initialisation du polynome retour
 	begin
 	mult_X_result := (others => '0');
-	if a(C_N-1) = '1' then										-- SI le MSB du polynome vaut 1 c-a-d est-ce qu'un debordement peut avoir lieu lors du decalage a gauche ?
-		mult_X_result := a(C_N-2 downto 0)&'0' XOR C_m(7 downto 0);				-- Decalage a gauche et Reduction du champs de Galois avec le poly irreductible (evite un depassement de N)
-	else 												-- SI le MSB du polynome different de 1 ALORS
-		mult_X_result := a(C_N-2 downto 0)&'0';							-- Décalage a gauche seulement car pas de overflow possible
+	if a(C_N-1) = '1' then											-- SI le MSB du polynome vaut 1 c-a-d est-ce qu'un debordement peut avoir lieu lors du decalage a gauche ?
+		mult_X_result := a(C_N-2 downto 0)&'0' XOR C_m(C_N-1 downto 0);	-- Decalage a gauche et Reduction du champs de Galois avec le poly irreductible (evite un depassement de N)
+	else 															-- SI le MSB du polynome different de 1 ALORS
+		mult_X_result := a(C_N-2 downto 0)&'0';						-- DÈcalage a gauche seulement car pas de overflow possible
 	end if;
 	return mult_X_result;
 end function mult_X ;
 
--- Fonction multiplication de deux éléments quelconques du corps
+-- Fonction multiplication de deux ÈlÈments quelconques du corps
 function mult_2_elem (a, b : polynom) return polynom is
 	variable mult_2_result : polynom;								-- Initialisation du polynome retour 
-	variable temp_b : polynom;									-- Initialisation du polynome retour  
+	variable temp_b : polynom;										-- Initialisation du polynome retour  
 	begin
 	mult_2_result := (others => '0');
-	for i in (C_N-1) downto 0 loop
+	for i in (C_N-1) downto 1 loop
 		if (a(i) = '1') then
 			temp_b := b;
 			for j in 1 to i loop
@@ -68,6 +63,10 @@ function mult_2_elem (a, b : polynom) return polynom is
 			mult_2_result := add(mult_2_result, temp_b);
 		end if;
 	end loop;
+	if (a(0) = '1') then
+		mult_2_result := add(mult_2_result, b);
+	end if;
+		
 	return mult_2_result;
 end function mult_2_elem;
 
@@ -77,7 +76,7 @@ function invers (a : polynom) return polynom is
 	variable inv_result : polynom;									-- Initialisation du polynome retour 
 	begin
 	inv_result := a;
-	for i in 0 to 252 loop -- (2**(C_N) - 2) loop							-- Multiplication bit a bit du poly a par le poly b 
+	for i in 0 to (2**(C_N) - 4) loop								-- Multiplication bit a bit du poly a par le poly b 
 		inv_result := mult_2_elem(inv_result, a);
 	end loop;
 	return inv_result;
