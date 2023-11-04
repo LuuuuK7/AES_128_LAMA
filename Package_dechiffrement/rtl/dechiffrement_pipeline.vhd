@@ -62,6 +62,8 @@ architecture arch of dechiffrement_pipeline is
 			reg_state <= zero_state;
 			out_data <= zero_state;
 			en <= '0';
+			addr <= (others =>'0');
+			i := 15;
 			for i in 10 downto 0 loop
 				reg_key(i) <= zero_state;
 			end loop;
@@ -100,9 +102,10 @@ architecture arch of dechiffrement_pipeline is
 			
 					--Fonctionn invSubByte
 					en <= '1';
-					addr(128*(i+1)downto 128*i) downto  <= vector_state_i;
+					addr(128*(i+1)downto 128*i)  <= vector_state_i;
 					rom_data_out_i := data_out;
-					 en <= '0';
+					en <= '0';
+					i :=i-1; 
 			
 					--Fonction addRoundKey
 					if flag='1' then 
@@ -125,7 +128,7 @@ architecture arch of dechiffrement_pipeline is
 					
 					--Fonctionn invSubByte
 					en <= '1';
-					addr <= vector_state_end;
+					addr(128*(i+1) downto i*128) <= vector_state_end;
 					rom_data_out_end := data_out;
 					en <= '0';
 					
