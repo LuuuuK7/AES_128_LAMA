@@ -13,7 +13,7 @@ use ieee.numeric_std.all;
 use work.my_package.all;
 use work.package_dechiffrement.all;
 
-entity dechiffrement is 
+entity dechiffrement_pipeline is 
 	
 	generic (
 		constant Nbit : positive :=128
@@ -32,7 +32,7 @@ entity dechiffrement is
 
 end entity;
 
-architecture arch of dechiffrement is
+architecture arch of dechiffrement_pipeline is
 
 	type regkey is array (0 to 10) of std_logic_vector (Nbit-1 downto 0);
 	
@@ -42,7 +42,7 @@ architecture arch of dechiffrement is
 
 	signal data_out : std_logic_vector((16*Nbit)-1 downto 0);	
 	signal addr    :std_logic_vector((16*Nbit)-1 downto 0);
-	signal en 	   :std_logic;
+	signal en 	:std_logic;
 
 											 
 									  
@@ -59,6 +59,8 @@ architecture arch of dechiffrement is
 	begin
 		if resetn = '0' then 
 			reg_state <= zero_state;
+			out_data <= zero_state;
+			en <= '0';
 			for i in 10 downto 0 loop
 				reg_key(i) <= zero_state;
 			end loop;
