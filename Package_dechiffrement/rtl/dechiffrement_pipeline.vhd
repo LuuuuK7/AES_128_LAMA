@@ -35,15 +35,15 @@ end entity;
 architecture arch of dechiffrement_pipeline is
 
 	type regkey is array (0 to 10) of std_logic_vector (Nbit-1 downto 0);
-	type romAddr is array (0 to 15) of std_logic_vector (byte-1 downto 0);
-	type romData is array (0 to 15) of std_logic_vector (byte-1 downto 0);
+	type romAddr is array (0 to 15) of std_logic_vector (7 downto 0);
+	type romData is array (0 to 15) of std_logic_vector (7 downto 0);
 	
 	signal reg_key : regKey;
 	constant zero_state : std_logic_vector(Nbit-1 downto 0) :=(others =>'0');
 	signal reg_state : std_logic_vector(Nbit-1 downto 0);
 
-	signal data_out : varRom;	
-	signal addr     : varRom;
+	signal data_out : romData;	
+	signal addr     : romAddr;
 	signal en 	    : std_logic;
 
 											 
@@ -64,10 +64,10 @@ architecture arch of dechiffrement_pipeline is
 			reg_state <= zero_state;
 			out_data <= zero_state;
 			en <= '0';
-			addr <= (others =>'0');
 			i := 15;
 			for i in 10 downto 0 loop
 				reg_key(i) <= zero_state;
+				addr(i) <= zero_state;
 			end loop;
 		elsif rising_edge(clk) then
 			
@@ -135,7 +135,7 @@ architecture arch of dechiffrement_pipeline is
 						addr(i)  <= vector_state_i(8*(i+1) downto 8*i);
 						rom_data_out_i(8*(i+1) downto 8*i) := data_out(i);
 					end loop;
-					rom_data_out_i := data_out;
+					
 					en <= '0';
 					
 					--Fonction addRoundKey
