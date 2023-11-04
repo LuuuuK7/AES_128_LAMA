@@ -35,14 +35,16 @@ end entity;
 architecture arch of dechiffrement_pipeline is
 
 	type regkey is array (0 to 10) of std_logic_vector (Nbit-1 downto 0);
+	type romAddr is array (0 to 15) of std_logic_vector (byte-1 downto 0);
+	type romData is array (0 to 15) of std_logic_vector (byte-1 downto 0);
 	
 	signal reg_key : regKey;
 	constant zero_state : std_logic_vector(Nbit-1 downto 0) :=(others =>'0');
 	signal reg_state : std_logic_vector(Nbit-1 downto 0);
 
-	signal data_out : std_logic_vector((16*Nbit)-1 downto 0);	
-	signal addr    :std_logic_vector((16*Nbit)-1 downto 0);
-	signal en 	:std_logic;
+	signal data_out : varRom;	
+	signal addr     : varRom;
+	signal en 	    : std_logic;
 
 											 
 									  
@@ -102,10 +104,12 @@ architecture arch of dechiffrement_pipeline is
 			
 					--Fonctionn invSubByte
 					en <= '1';
-					addr(128*(i+1)downto 128*i)  <= vector_state_i;
-					rom_data_out_i := data_out;
+					for i in  15 downto 0 loop
+						addr(i)  <= vector_state_i(8*(i+1) downto 8*i);
+						rom_data_out_i(8*(i+1) downto 8*i) := data_out(i);
+					end loop;
 					en <= '0';
-					i :=i-1; 
+
 			
 					--Fonction addRoundKey
 					if flag='1' then 
@@ -126,10 +130,12 @@ architecture arch of dechiffrement_pipeline is
 					--Fonctionn invShiftRow
 					vector_state_end:=invShiftRow(end_round);
 					
-					--Fonctionn invSubByte
 					en <= '1';
-					addr(128*(i+1) downto i*128) <= vector_state_end;
-					rom_data_out_end := data_out;
+					for i in  15 downto 0 loop
+						addr(i)  <= vector_state_i(8*(i+1) downto 8*i);
+						rom_data_out_i(8*(i+1) downto 8*i) := data_out(i);
+					end loop;
+					rom_data_out_i := data_out;
 					en <= '0';
 					
 					--Fonction addRoundKey
@@ -158,9 +164,9 @@ architecture arch of dechiffrement_pipeline is
 					port map(
 						
 						clk => clk,
-						addr =>addr(8*(i+1)-1 downto 8*i),
+						addr =>addr(i),
 						en  => en,
-						data_out => data_out(8*(i+1)-1 downto 8*i)
+						data_out => data_out(i)
 						);
 	end generate;
 						
