@@ -55,6 +55,7 @@ architecture arch of dechiffrement_pipeline is
 	variable end_xor, vector_state_i, vector_state_end, rom_data_out_i,rom_data_out_end : vector_state;
 	variable array_state_i, end_round,array_state_end : array_state;
 	variable u,v: integer;
+	variable i : natural range 0 to 15;
 	
 	begin
 		if resetn = '0' then 
@@ -99,7 +100,7 @@ architecture arch of dechiffrement_pipeline is
 			
 					--Fonctionn invSubByte
 					en <= '1';
-					addr <= vector_state_i;
+					addr(128*(i+1)downto 128*i) downto  <= vector_state_i;
 					rom_data_out_i := data_out;
 					 en <= '0';
 			
